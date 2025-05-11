@@ -1,0 +1,9 @@
+2025-04-08 00:22:49,743 - INFO - Created new attendance file: Attendance.csv
+2025-04-08 00:22:49,744 - INFO - Loading known faces...
+2025-04-08 00:22:49,744 - INFO - Found 4 images to process
+2025-04-08 00:22:50,292 - INFO - Successfully encoded: Bill Gates
+2025-04-08 00:22:50,952 - INFO - Successfully encoded: blaise
+2025-04-08 00:22:51,995 - INFO - Successfully encoded: Elon Musk
+2025-04-08 00:22:52,754 - INFO - Successfully encoded: Jack Ma
+2025-04-08 00:22:52,754 - INFO - Successfully loaded 4 faces
+2025-04-08 00:22:52,754 - INFO - Starting face recognition system...
