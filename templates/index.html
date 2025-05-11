@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Système de Reconnaissance Faciale</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --success-color: #4bb543;
+            --danger-color: #dc3545;
+            --text-color: #2b2d42;
+            --light-bg: #f8f9fa;
+        }
+        
+        body {
+            padding: 10px;
+            background: linear-gradient(135deg, #4361ee 0%, #3f37c9 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 13px;
+            height: 100vh;
+            overflow: hidden;
+            color: var(--text-color);
+        }
+        
+        .container {
+            max-width: 100%;
+            height: 100%;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+        
+        .row {
+            height: 100%;
+            margin: 0;
+        }
+        
+        .col-md-8, .col-md-4 {
+            padding: 0 5px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .video-container {
+            position: relative;
+            width: 100%;
+            height: 75%;
+            margin: 0 auto;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border: 3px solid var(--primary-color);
+        }
+        
+        #video_feed {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .controls {
+            margin: 12px 0;
+            text-align: center;
+            padding: 12px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .right-panel {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        
+        .stats-panel {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .stats-item {
+            display: flex;
+            align-items: center;
+            margin: 5px 0;
+            font-size: 12px;
+        }
+        
+        .stats-icon {
+            font-size: 1.1em;
+            margin-right: 6px;
+            color: var(--primary-color);
+        }
+        
+        .upload-area {
+            margin-top: 8px;
+            flex: 0 0 auto;
+        }
+        
+        .upload-area.dragover {
+            border-color: var(--primary-color);
+            background-color: #f0f7ff;
+            transform: scale(1.01);
+        }
+        
+        .upload-icon {
+            font-size: 2em;
+            color: var(--primary-color);
+            margin-bottom: 8px;
+        }
+        
+        .card {
+            border-radius: 12px;
+            border: none;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .card-header {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 600;
+            border-radius: 12px 12px 0 0 !important;
+        }
+        
+        .card-body {
+            padding: 0;
+            flex: 1 1 auto;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .attendance-list {
+            height: 100%;
+            overflow-y: auto;
+            padding: 8px;
+            background: white;
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            flex: 1 1 auto;
+            scroll-behavior: smooth;
+        }
+        
+        .attendance-list::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .attendance-list::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+        }
+        
+        .attendance-list::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 3px;
+        }
+        
+        .attendance-list::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        
+        .attendance-card {
+            background: white;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            padding: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            border-left: 4px solid var(--primary-color);
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .attendance-card:hover {
+            transform: translateY(-2px);
+            background-color: #f8f9fa;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .person-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 6px;
+        }
+        
+        .attendance-time {
+            font-size: 0.85rem;
+            color: #6c757d;
+        }
+        
+        .attendance-time i {
+            margin-right: 6px;
+            color: var(--primary-color);
+        }
+        
+        .status-badge {
+            background-color: #e9ecef;
+            color: #495057;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            white-space: nowrap;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            padding: 8px 20px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+        }
+        
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            font-size: 12px;
+        }
+        
+        .status-badge i {
+            margin-right: 5px;
+            font-size: 0.8em;
+        }
+        
+        h1 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        h5 {
+            font-size: 1rem;
+        }
+        
+        .card-header h5 {
+            font-size: 0.9rem;
+            margin: 0;
+        }
+        
+        .btn {
+            padding: 4px 8px;
+            font-size: 12px;
+        }
+        
+        .form-control {
+            padding: 4px 8px;
+            font-size: 12px;
+        }
+        
+        .alert {
+            padding: 8px;
+            margin-bottom: 8px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center mb-4">
+            <i class="fas fa-camera"></i>
+            Système de Reconnaissance Faciale
+        </h1>
+        
+        <div class="row">
+            <div class="col-md-8">
+                <div class="video-container mb-4">
+                    <img id="video_feed" src="{{ url_for('video_feed') }}" alt="Flux vidéo">
+                </div>
+                
+                <div class="controls">
+                    <button id="toggleRecognition" class="btn btn-primary btn-recognition">
+                        <i class="fas fa-play"></i> Démarrer la reconnaissance
+                    </button>
+                    <span id="recognitionStatus" class="status-badge ms-2">
+                        <i class="fas fa-circle"></i> En attente
+                    </span>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="right-panel">
+                    <div class="stats-panel">
+                        <h5><i class="fas fa-chart-bar"></i> Statistiques</h5>
+                        <div class="stats-item">
+                            <i class="fas fa-users stats-icon"></i>
+                            <div>
+                                <strong>Personnes Reconnues:</strong>
+                                <span id="recognized-count">0</span>
+                            </div>
+                        </div>
+                        <div class="stats-item">
+                            <i class="fas fa-clock stats-icon"></i>
+                            <div>
+                                <strong>Temps de Session:</strong>
+                                <span id="session-time">00:00:00</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">
+                                <i class="fas fa-clipboard-list"></i>
+                                Présences du Jour
+                            </h5>
+                            <button id="clearAttendanceBtn" class="btn btn-sm btn-light">
+                                <i class="fas fa-trash"></i> Effacer
+                            </button>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="attendance-list" id="attendanceList">
+                                <!-- Les présences seront ajoutées ici dynamiquement -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let recognitionActive = false;
+        let sessionStartTime = null;
+        let recognizedCount = 0;
+        let currentCameraIndex = 0;
+        
+        // Update session time
+        function updateSessionTime() {
+            if (sessionStartTime && recognitionActive) {
+                const now = new Date();
+                const diff = new Date(now - sessionStartTime);
+                const hours = diff.getUTCHours().toString().padStart(2, '0');
+                const minutes = diff.getUTCMinutes().toString().padStart(2, '0');
+                const seconds = diff.getUTCSeconds().toString().padStart(2, '0');
+                document.getElementById('session-time').textContent = `${hours}:${minutes}:${seconds}`;
+            }
+        }
+        
+        setInterval(updateSessionTime, 1000);
+
+        // Toggle recognition
+        document.getElementById('toggleRecognition').addEventListener('click', async () => {
+            const response = await fetch('/toggle_recognition', { method: 'POST' });
+            const data = await response.json();
+            recognitionActive = data.active;
+            
+            if (recognitionActive) {
+                sessionStartTime = new Date();
+            } else {
+                sessionStartTime = null;
+                document.getElementById('session-time').textContent = '00:00:00';
+            }
+            
+            updateStatus();
+        });
+
+        function updateStatus() {
+            const btn = document.getElementById('toggleRecognition');
+            const indicator = document.getElementById('recognitionStatus');
+            
+            btn.innerHTML = recognitionActive ? 
+                '<i class="fas fa-pause"></i> Arrêter la reconnaissance' : 
+                '<i class="fas fa-play"></i> Démarrer la reconnaissance';
+            
+            btn.className = recognitionActive ? 
+                'btn btn-danger btn-recognition' : 
+                'btn btn-primary btn-recognition';
+            
+            indicator.className = 'status-badge ' + 
+                (recognitionActive ? 'status-active' : 'status-inactive');
+        }
+
+        // Update attendance list
+        async function updateAttendance() {
+            try {
+                const response = await fetch('/get_attendance');
+                const attendance = await response.json();
+                const attendanceList = document.getElementById('attendanceList');
+                
+                if (attendance.length === 0) {
+                    attendanceList.innerHTML = `
+                        <div class="text-center p-4 text-muted">
+                            <i class="fas fa-info-circle"></i>
+                            Aucune présence enregistrée
+                        </div>
+                    `;
+                    document.getElementById('recognized-count').textContent = '0';
+                    return;
+                }
+                
+                // Trier les présences par date et heure (plus récentes en premier)
+                attendance.sort((a, b) => {
+                    const dateA = new Date(`${a.date} ${a.time}`);
+                    const dateB = new Date(`${b.date} ${b.time}`);
+                    return dateB - dateA;
+                });
+                
+                attendanceList.innerHTML = '';
+                
+                attendance.forEach(record => {
+                    const card = document.createElement('div');
+                    card.className = 'attendance-card';
+                    card.innerHTML = `
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <div class="person-name">
+                                    <i class="fas fa-user-circle me-2"></i>
+                                    ${record.name}
+                                </div>
+                                <div class="attendance-time">
+                                    <span><i class="far fa-calendar"></i> ${record.date}</span>
+                                    <span class="ms-2"><i class="far fa-clock"></i> ${record.time}</span>
+                                </div>
+                            </div>
+                            <span class="status-badge">
+                                <i class="fas fa-check-circle"></i> Présent
+                            </span>
+                        </div>
+                    `;
+                    attendanceList.appendChild(card);
+                });
+                
+                document.getElementById('recognized-count').textContent = attendance.length;
+                
+            } catch (error) {
+                console.error('Error fetching attendance:', error);
+                showNotification('Erreur lors de la récupération des présences', 'danger');
+            }
+        }
+
+        // Ajouter le gestionnaire pour le bouton d'effacement
+        document.getElementById('clearAttendanceBtn').addEventListener('click', async () => {
+            if (confirm('Voulez-vous vraiment effacer toutes les présences ?')) {
+                try {
+                    const response = await fetch('/clear_attendance', { method: 'POST' });
+                    const result = await response.json();
+                    showNotification(result.message || result.error, result.error ? 'danger' : 'success');
+                    updateAttendance(); // Rafraîchir la liste
+                } catch (error) {
+                    showNotification('Erreur lors de l\'effacement des présences', 'danger');
+                }
+            }
+        });
+
+        // Mettre à jour le CSS
+        const style = document.createElement('style');
+        style.textContent = `
+            .attendance-card {
+                padding: 15px;
+                border-bottom: 1px solid #eee;
+                transition: all 0.3s ease;
+            }
+            
+            .attendance-card:hover {
+                background-color: #f8f9fa;
+            }
+            
+            .person-name {
+                color: #2c3e50;
+                font-size: 1.1rem;
+                margin: 0;
+            }
+            
+            .attendance-time {
+                font-size: 0.85rem;
+                color: #6c757d;
+            }
+            
+            .attendance-time i {
+                margin-right: 5px;
+            }
+            
+            #clearAttendanceBtn {
+                transition: all 0.3s ease;
+            }
+            
+            #clearAttendanceBtn:hover {
+                background-color: #dc3545;
+                color: white;
+            }
+        `;
+
+        document.head.appendChild(style);
+
+        // Update attendance list every 5 seconds
+        setInterval(updateAttendance, 5000);
+        updateAttendance(); // Initial update
+
+        // Gestion du changement de caméra
+        document.getElementById('switchCameraBtn').addEventListener('click', async function() {
+            try {
+                // Déterminer l'index de la prochaine caméra (0 -> 1, 1 -> 2, 2 -> 0)
+                const response = await fetch('/switch_camera', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ camera_index: currentCameraIndex + 1 >= 3 ? 0 : currentCameraIndex + 1 })
+                });
+                
+                const result = await response.json();
+                currentCameraIndex = result.camera_index;
+                
+                // Afficher une notification de changement de caméra
+                showNotification(`Changement vers caméra ${currentCameraIndex}`, 'info');
+            } catch (error) {
+                console.error('Erreur lors du changement de caméra:', error);
+                showNotification('Erreur lors du changement de caméra', 'danger');
+            }
+        });
+        
+        // Fonction pour afficher des notifications
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `alert alert-${type} alert-dismissible fade show position-fixed top-0 end-0 m-3`;
+            notification.style.zIndex = "1050";
+            notification.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 3000);
+        }
+    </script>
+</body>
+</html> 
