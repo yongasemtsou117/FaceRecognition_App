@@ -1,13 +1,13 @@
 # FaceRecognition_App
 Application of control Acces
 
-#📸 Overview
+## 📸 Overview
 
 The Face Recognition Attendance App is a smart system that uses facial recognition technology to automatically record the attendance of individuals. This application is ideal for schools, workplaces, or any environment where attendance tracking is essential.
 
 With a built-in face detection and recognition module, the system captures faces through a webcam, identifies individuals, and logs the date and time of their presence—all in real time.
 
-🔍 Features
+## 🔍 Features
 
     👤 Face detection using OpenCV and Haar cascades
 
@@ -23,7 +23,7 @@ With a built-in face detection and recognition module, the system captures faces
 
     🔐 Secure and scalable system design
 
-🛠️ Technologies Used
+## 🛠️ Technologies Used
 
     Python
 
